@@ -1,0 +1,257 @@
+{% include 'product_tracking/head.html' %}
+{% load static %}
+{% block content %}
+    <body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .fc-event-title-container{
+            width: 105px;
+        }
+        .fc-day-today .fc-daygrid-day-number {
+            background-color: #007bff;
+            color: white !important;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .fc-daygrid-day-frame {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-right: 10px;
+        }
+
+        .fc-event-title, .fc-event-time {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+        }
+
+        .fc-event {
+            height: auto !important;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                },
+                initialView: 'dayGridMonth',
+                events: '/get_eventvalue/',
+                selectable: true,
+                select: function (arg) {
+                    $('#startDate').val(arg.startStr);
+                    // Adjust the end date to be inclusive
+                    let endDate = new Date(arg.endStr);
+                    endDate.setDate(endDate.getDate() - 1);
+                    $('#endDate').val(endDate.toISOString().split('T')[0]);
+                    $('#action').val('CREATE');
+                    $('#eventModalLabel').text('Add Event');
+                    $('#saveEvent').text('Save');
+                    $('#deleteEvent').hide();
+                    $('#eventModal').modal('show');
+                },
+                eventClick: function (info) {
+                    $('#action').val('UPDATE');
+                    $('#event_id').val(info.event.id);
+                    $('#eventVenue').val(info.event.extendedProps.venue);
+                    $('#clientName').val(info.event.extendedProps.client_name);
+                    $('#personName').val(info.event.extendedProps.person_name);
+                    $('#startDate').val(info.event.startStr);
+
+                    // Display the end date exactly as it is received from FullCalendar
+                    if (info.event.end) {
+                        $('#endDate').val(info.event.end.toISOString().split('T')[0]);
+                    } else {
+                        $('#endDate').val(info.event.startStr);
+                    }
+
+                    $('#eventModalLabel').text('Update Event');
+                    $('#saveEvent').text('Update');
+                    $('#deleteEvent').show();
+                    $('#eventModal').modal('show');
+                }
+            });
+            calendar.render();
+
+            function clearForm() {
+                $('#eventForm')[0].reset();
+                $('#event_id').val('');
+                $('#startDate').val('');
+                $('#endDate').val('');
+            }
+
+            $('#saveEvent').click(function () {
+                var action = $('#action').val();
+                var formData = $('#eventForm').serializeArray();
+                formData.push({name: 'action', value: action});
+
+                $.post("{% url 'add_event_view' %}", formData)
+                    .done(function (data) {
+                        if (data.success) {
+                            $('#eventModal').modal('hide');
+                            calendar.refetchEvents();
+                            clearForm();  // Clear the form after successful submission
+                        } else {
+                            alert('Error: ' + data.error_message);
+                        }
+                    })
+                    .fail(function (error) {
+                        alert('An error occurred while saving the event.');
+                    });
+            });
+
+            $('#deleteEvent').click(function () {
+                var event_id = $('#event_id').val();
+                if (!confirm('Are you sure you want to delete this event?')) {
+                    return;
+                }
+
+                $.post("{% url 'add_event_view' %}", {
+                    action: 'DELETE',
+                    event_id: event_id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                })
+                    .done(function (data) {
+                        if (data.success) {
+                            $('#eventModal').modal('hide');
+                            calendar.refetchEvents();
+                            clearForm();  // Clear the form after successful deletion
+                        } else {
+                            alert('Error: ' + data.error_message);
+                        }
+                    })
+                    .fail(function (error) {
+                        alert('An error occurred while deleting the event.');
+                    });
+            });
+
+            $('#eventModal').on('hidden.bs.modal', function () {
+                clearForm();  // Clear the form when the modal is closed
+            });
+
+            $(document).on('click', '.btn-secondary', function () {
+                $('#eventModal').modal('hide');
+            });
+        });
+    </script>
+
+    <div id="preloader">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div id="main-wrapper">
+        {% include 'product_tracking/navheader.html' %}
+        {% include 'product_tracking/header.html' %}
+        {% include 'product_tracking/sidebar.html' %}
+
+        <div class="content-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xl-12 col-xxl-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="calendar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for Adding Events -->
+                    <div class="modal fade" id="eventModal" tabindex="-1" role="dialog"
+                         aria-labelledby="eventModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="eventModalLabel">Add Event</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="eventForm" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" id="action" name="action" value="CREATE">
+                                        <input type="hidden" id="event_id" name="event_id">
+                                        <div class="form-group">
+                                            <label for="eventVenue">Event Venue<span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control wrap-text" id="eventVenue"
+                                                   name="venue"
+                                                   required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="clientName">Client Name<span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="clientName" name="client_name"
+                                                   required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="personName">Person Name<span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="personName" name="person_name"
+                                                   required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="startDate">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate" name="start_date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="endDate">End Date</label>
+                                            <input type="date" class="form-control" id="endDate" name="end_date">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" id="saveEvent">Save</button>
+                                    <button type="button" class="btn btn-danger" id="deleteEvent"
+                                            style="display: none;">Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Error Message Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog"
+         aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'product_tracking/footer.html' %}
+
+    </body>
+{% endblock %}

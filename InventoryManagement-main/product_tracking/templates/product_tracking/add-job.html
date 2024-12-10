@@ -1,0 +1,2031 @@
+{% include 'product_tracking/head.html' %}
+{% load static %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+body, .form-container {
+    background-color: #222222 !important; /* Dark background */
+    color: #fff; /* Light text color */
+}
+input.form-control,
+select.form-control {
+    background-color: #222222 !important; /* White background */
+    color: #fff !important; /* Black text */
+    border: 1px solid #ced4da; /* Optional: add a subtle border */
+}
+
+input.form-control:focus,
+select.form-control:focus {
+    background-color: #fff; /* White background on focus */
+    color: #222222; /* Black text */
+    border-color: #80bdff; /* Optional: blue border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: focus shadow */
+}
+
+button.step-btn {
+    background-color: #007bff; /* Blue button background */
+    color: #fff; /* White text */
+}
+
+button.step-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.dropdown-menu {
+    background-color: #343a40; /* Dark background for dropdown */
+    color: #fff; /* White text */
+}
+
+.dropdown-menu a {
+    color: #fff !important; /* Ensure the dropdown text is white */
+}
+
+.dropdown-menu a:hover {
+    background-color: #007bff; /* Highlight on hover */
+    color: #fff;
+}
+
+/* Make sure the selects also follow the input styles */
+select {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+/* Accordion */
+.left-equipment-container, .right-equipment-container {
+    background-color: #2a2a3b; /* Darker background for equipment containers */
+    border: 1px solid #3a3a4c; /* Subtle border */
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.left-equipment-container .quantity-container, .right-equipment-container .equipment-table-container {
+    background-color: #2a2a3b; /* Background inside the containers */
+    padding: 10px;
+}
+
+.accordion-header {
+    background-color: #3a3a4c; /* Darker accordion headers */
+    color: #ffffff;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.accordion-content {
+    background-color: #222222 ; /* Dark background for accordion content */
+    color: #ffffff;
+    padding: 15px;
+}
+
+/* Table */
+.table {
+    background-color: #2a2a3b; /* Dark background for table */
+    border: 1px solid #3b3b4f; /* Darker border */
+    color: #ffffff;
+}
+
+
+.table tbody tr {
+    border-bottom: 1px solid #4a4a5f; /* Subtle row separator */
+}
+
+.table tbody tr:hover {
+    background-color: #343a40; /* Highlight row on hover */
+}
+
+.table td, .table th {
+    padding: 10px; /* Spacing for table cells */
+    color: #ffffff; /* White text */
+}
+
+.custom-table th, .custom-table td {
+    padding-left: 20px; /* Padding inside table */
+}
+
+.crew-left-content {
+    border: 2px solid grey;
+    width: 30%;
+    border-radius: 7px;
+    margin-right: 43px;
+    padding: 10px;
+
+}
+
+.crew-right-content {
+    border: 2px solid grey;
+    border-radius: 7px;
+    width: 70%;
+    padding: 10px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+.right-equipment-container {
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    padding: 15px; /* Optional: add padding for better spacing inside the container */
+}
+
+.left-equipment-container {
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    padding: 15px; /* Optional: add padding for better spacing inside the container */
+}
+
+
+    .accordion-header {
+    background-color: #f7f7f7;
+    padding: 0px;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between; /* Distributes space between equipment name and button */
+    align-items: center; /* Aligns items vertically in the center */
+}
+
+.equipment-name {
+    flex-grow: 1; /* Ensures the name takes up the available space */
+    margin-left: 10px;
+}
+
+.plus-btn {
+    margin-left: auto; /* Pushes the button to the far right */
+}
+
+    .accordion-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    }
+
+.accordion-content {
+    padding: 10px;
+    display: none;
+}
+
+.accordion-content.open {
+    display: block;
+}
+
+   .quantity-container {
+        display: flex;
+        flex-direction: column;  /* Stacks items vertically */
+        gap: 10px;  /* Adds space between items */
+   }
+
+    .subcategory-item {
+        display: flex;
+        align-items: center;  /* Aligns text and button in a row */
+    }
+
+    .subcategory-item span {
+        margin-right: 10px;  /* Adds space between text and button */
+    }
+        .is-invalid {
+            border-color: red;
+        }
+
+        .input-container {
+            position: relative;
+            display: inline-block;
+            flex: 1;
+        }
+
+        #equipmentDropdown {
+            position: absolute;
+            top: 100%; /* Position below the search box */
+            left: 0;
+            z-index: 1000; /* Ensure it appears above other content */
+            width: 100%; /* Match the width of the search box */
+            max-height: 300px; /* Limit height to avoid overflow */
+            overflow-y: auto; /* Add scrollbar if needed */
+            background: #fff; /* Background color */
+            border: 1px solid #ddd; /* Border color */
+            border-radius: 0.25rem; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Drop shadow */
+        }
+
+        .table {
+            margin-bottom: 0; /* Remove bottom margin */
+        }
+
+        .table thead th {
+            background-color: #f8f9fa; /* Light background for header */
+            color: #495057; /* Dark text color */
+            font-weight: bold; /* Bold text */
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1; /* Highlight row on hover */
+        }
+
+        .table td {
+            vertical-align: middle; /* Center content vertically */
+            padding-right: 6px;
+        }
+
+        .quantity-input {
+            width: 100px; /* Fixed width for input fields */
+        }
+
+        .disabled-option {
+            background-color: #e9ecef; /* Light gray background for disabled rows */
+            color: #6c757d; /* Gray text color */
+        }
+
+        .table-container {
+            max-height: 430px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        .table tbody tr td {
+            vertical-align: middle;
+        }
+
+        .table tbody tr td input[type="number"] {
+            width: 80px;
+            text-align: center;
+        }
+
+        .table tbody tr td .delete-btn {
+            color: #dc3545;
+            cursor: pointer;
+        }
+
+        .table tbody tr td .delete-btn:hover {
+            color: #a71d2a;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f2f2f2;
+        }
+
+        .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+
+
+        .search-container {
+            display: flex;
+            align-items: center; /* Align items vertically center */
+            justify-content: space-between; /* Space between the items */
+            margin-bottom: 10px; /* Space below the search container */
+            width: 100%;
+        }
+
+        .quantity-container {
+            display: flex;
+            {#align-items: center; /* Center the quantity input vertically */#}
+            margin-bottom: 10px; /* Space below the quantity input */
+            margin-top: 10px;
+            {#margin-left: 24px;#}
+        }
+
+        .table-container {
+            margin-top: 3px; /* Adjust as needed */
+        }
+
+        .custom-table {
+            width: 100%; /* Ensure table takes full width of its container */
+            border-collapse: collapse;
+        }
+
+        .custom-table th, .custom-table td {
+            text-align: left; /* Align text to the left */
+            padding: 1px; /* Padding for table cells */
+            padding-left: 48px;
+        }
+
+        .custom-table th {
+            background-color: #f2f2f2; /* Background color for header */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            max-height: 100%;
+            margin: 0px auto;
+            padding: 0 20px 20px 20px;
+            {#border: 1px solid #ccc;#}
+            {#border-radius: 10px;#}
+            background-color: white;
+        }
+
+        .step-buttons {
+            text-align: center;
+            margin-bottom: 15px;
+            margin-left: -20px;
+        {#border-top: 1px solid #E6E6E6;#} margin-right: -20px;
+        }
+
+        .step-btn {
+            position: relative;
+            padding: 10px 20px;
+            margin: 20px 0 0 0;
+            border: none;
+            border-radius: 25px;
+            background-color: #0d99ff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .step-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .step-btn.active {
+            background-color: green;
+        }
+
+        .step-btn:not(:last-child) {
+            margin-right: 16px;
+        }
+
+        .step-btn:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            width: 21px;
+            height: 2px;
+            background-color: #0d99ff;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+
+        .step-btn.active::after {
+            background-color: green; /* Line color when the button is active */
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .custom-width {
+            width: 151px;
+        }
+
+        .form-job {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #0c0c0c;
+        }
+
+        .venue-address-item {
+            width: 500px;
+            white-space: normal;
+            word-wrap: break-word;
+            display: block;
+        }
+
+        {#label {#}
+        {#    display: block;#}
+        {#    margin-top: 10px;#}
+        {# }#}
+
+        input {
+            width: 100%;
+            {#padding: 10px;#}
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .step-buttons {
+                flex-direction: column;
+            }
+
+            .step-btn:not(:last-child) {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .custom-width {
+                width: 100%; /* Full width on small screens */
+                max-width: none;
+            }
+
+        {#.venue-address-item {#}
+        {#    width: 100%;#}
+        {# }#}
+        }
+
+        @media (max-width: 400px) {
+            .form-container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .step-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            input {
+                padding: 8px;
+            }
+        }
+    </style>
+
+<script>
+        function validateStep(currentStep, nextStep) {
+            const currentStepInputs = document.querySelectorAll(`#step-${currentStep} input[required], #step-${currentStep} select[required]`);
+
+            let valid = true;
+
+            currentStepInputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            if (valid) {
+                showStep(nextStep);
+            } else {
+                alert("Please fill in all required fields before proceeding.");
+            }
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(stepElement => {
+                stepElement.style.display = 'none';
+            });
+            document.getElementById(`step-${step}`).style.display = 'block';
+        }
+
+        // Ensure the first step is always active on page load
+        window.onload = function () {
+            showStep(1);
+        }
+
+        $(document).ready(function () {
+            // Initial fetch
+            fetchClientName();
+            fetchVenueAddress();
+            fetchVenueName();
+            fetchEmployeeNames();
+            fetchMasterCategories();
+
+            $('#venueAddressDropdown').on('keyup', function () {
+                var query = $(this).val();
+                if (query.length > 0) {  // Start searching after a few characters
+                    fetchVenueName(query);
+                } else {
+                    $('#dropdown-item').empty(); // Clear the dropdown if input is empty
+                }
+            });
+
+            $(document).on('click', '.venue-name-item', function (e) {
+                e.preventDefault();
+                var venueName = $(this).data('venue-name');
+                $('#venueAddressDropdown').val(venueName);  // Set the selected venue name in the input
+                fetchVenueAddress(venueName);  // Fetch the corresponding venue address
+                $('#dropdown-item').empty();  // Clear the dropdown after selection
+            });
+
+            function fetchVenueName(query) {
+                $.ajax({
+                    url: '/fetch_venue_name/',  // Your Django view URL for fetching venue names
+                    type: 'GET',
+                    data: { 'query': query },  // Pass the query to the server
+                    dataType: 'json',
+                    success: function (data) {
+                        var venueNames = data.venue_names;
+                        var dropdownMenu = $('#dropdown-item');
+                        dropdownMenu.empty();  // Clear the dropdown before appending new data
+
+                        $.each(venueNames, function (index, venue) {
+                            dropdownMenu.append('<li><a class="dropdown-item venue-name-item" href="#" data-venue-name="' + venue.name + '">' + venue.name + '</a></li>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching venue names:', error);
+                    }
+                });
+            }
+
+            function fetchVenueAddress(venueNames) {
+                $.ajax({
+                    url: '/fetch_venue_address/',  // Your Django view URL for fetching venue addresses
+                    type: 'GET',
+                    data: { 'venue_name': venueNames },  // Pass the selected venue name to the server
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.venue_address) {
+                            $('#venueAddressInput').val(data.venue_address);  // Set the venue address in the input
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching venue address:', error);
+                    }
+                });
+            }
+
+            $('#venueAddressDropdown').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                var dropdownMenu = $(this).next('.dropdown-menu');
+                dropdownMenu.children('.dropdown-item').filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+             function fetchClientName() {
+                $.ajax({
+                    url: '/fetch_client_name/',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        var clientNames = data.client_names;
+                        var dropdownMenu = $('#clientNameDropdown').next('.dropdown-menu');
+                        dropdownMenu.empty();
+
+                        $.each(clientNames, function (index, client) {
+                            dropdownMenu.append('<li><a class="dropdown-item client-name-item" href="#" data-client-name="' + client.name + '" data-client-type="' + client.type + '">' + client.name + '</a></li>');
+                            console.log('name', client.name, client.type);
+                        });
+                         // Show the dropdown when the input is clicked
+                        $('#clientNameDropdown').on('click', function () {
+                            dropdownMenu.show();  // Show dropdown when input is clicked
+                        });
+
+                        // Add click event listener for each dropdown item
+                        $('.client-name-item').on('click', function (e) {
+                            e.preventDefault();  // Prevent default action (navigation)
+
+                            var selectedClientName = $(this).data('client-name');
+
+                            // Set the selected client name in the input field
+                            $('#clientNameDropdown').val(selectedClientName);
+
+                            // Hide the dropdown menu after selection
+                            dropdownMenu.hide();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching client names:', error);
+                    }
+                });
+             }
+
+            function fetchIndividualNames(clientName) {
+                $.ajax({
+                    url: '/fetch_individual_names/',
+                    type: 'GET',
+                    data: { client_name: clientName },
+                    dataType: 'json',
+                    success: function (data) {
+                        var individualNames = data.individual_names;
+                        var contactDropdown = $('#clientContactName');
+                        contactDropdown.empty(); // Ensure dropdown is empty before adding options
+
+                        // Add options to the dropdown
+                        $.each(individualNames, function (index, person) {
+                            contactDropdown.append('<option value="' + person.name + '" data-mobile="' + person.mobile + '">' + person.name + '</option>');
+                        });
+
+                        // Optionally, trigger change event if needed
+                        contactDropdown.trigger('change');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching individual names:', error);
+                    }
+                });
+            }
+
+            $(document).on('change', '#clientContactName', function () {
+                var selectedOption = $(this).find('option:selected');
+                var mobileNumber = selectedOption.data('mobile');
+                $('#clientContactNumber').val(mobileNumber);
+            });
+
+            $(document).on('click', '.client-name-item', function () {
+                var clientName = $(this).data('client-name');
+                var clientType = $(this).data('client-type');
+                var input = $(this).closest('.dropdown').find('.dropdown-toggle');
+                input.val(clientName);
+                input.dropdown('toggle');
+                // Fetch and populate individual names based on selected client
+                fetchIndividualNames(clientName);
+            });
+
+            $(document).on('click', '.venue-address-item', function () {
+                var venueAddress = $(this).text();
+                var input = $(this).closest('.dropdown').find('.dropdown-toggle');
+                input.val(venueAddress);
+                input.dropdown('toggle');
+            });
+
+             function fetchEmployeeNames() {
+                $.ajax({
+                    url: '/get_employee_name/',
+                    type: 'GET',
+                    success: function (response) {
+                        var employeeDropdown = $('#employee');
+                        employeeDropdown.empty();
+                        employeeDropdown.append('<option value="" data-display="Select">Select</option>');
+                        response.employee_names.forEach(function (employee) {
+                            employeeDropdown.append('<option value="' + employee.name + '">' + employee.name + '</option>');
+                        });
+
+                        // Set the selected values after the dropdown is populated
+                        setTimeout(function () {
+                            setEmployeeValues();
+                        }, 500);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Failed to fetch employee names:', error);
+                    }
+                });
+             }
+
+            $('#employee').select2({
+                placeholder: "Select Employee Name",
+                allowClear: true
+            });
+
+            // Status dropdown change event
+            $('#status').change(function () {
+                var selectedValue = $(this).val();
+
+                // Show/hide fields based on status
+                if (selectedValue === "Quotation") {
+                    $('#quotation-fields').show();
+                    $('#quotation-details').show();
+                    $('#quotation-fields1').show();
+                    $('#prepsheet-fields').hide();
+                    $('#nav-general_details').show();
+                    $('#general_Information').show();
+                    $('#nav-crew_allocation').hide();
+                    $('#nav-transportation_allocation').hide();
+                    $('#nav-add_sub_vendor').hide();
+                } else if (selectedValue === "Perfoma") {
+                    $('#quotation-fields1').show();
+                    $('#quotation-fields').hide();
+                    $('#prepsheet-fields').hide();
+                    $('#nav-general_details').show();
+                    $('#nav-add_equipment').show();
+                    $('#nav-add_sub_vendor').hide();
+                    $('#nav-crew_allocation').hide();
+                    $('#nav-transportation_allocation').hide();
+                } else if (selectedValue === "Prepsheet") {
+                    $('#quotation-fields').hide();
+                    $('#prepsheet-fields').show();
+                    $('#quotation-fields1').hide();
+                    {#$('#quotation-fields').hide();#}
+                    $('#nav-general_details').show();
+                    $('#nav-add_equipment').show();
+                    $('#nav-add_sub_vendor').show();
+                    $('#nav-crew_allocation').show();
+                    $('#nav-transportation_allocation').show();
+                    fetchEmployeeNames();
+                } else {
+                    $('#quotation-fields').hide();
+                    $('#prepsheet-fields').hide();
+                    $('#quotation-fields1').hide();
+                    $('#nav-general_details').show();
+                    $('#nav-add_equipment').show();
+                    $('#nav-add_sub_vendor').show();
+                    $('#nav-crew_allocation').show();
+                    $('#nav-transportation_allocation').show();
+                }
+            });
+
+            $('#showStart').change(function () {
+                var startDate = $(this).val();
+                $('#showEnd').attr('min', startDate);
+                validateDates();
+            });
+
+            $('#showEnd').change(function () {
+                validateDates();
+            });
+
+            function validateDates() {
+                var showStartDate = $('#showStart').val();
+                var showEndDate = $('#showEnd').val();
+
+                if (showStartDate && showEndDate) {
+                    if (new Date(showEndDate) < new Date(showStartDate)) {
+                        alert("Select a valid date. Show End Date cannot be before Show Start Date.");
+                        $('#showEnd').val('');
+                        $('#number_of_days').val('');  // Clear number_of_days if dates are invalid
+                    }
+                }
+            }
+
+            // Trigger insertTempData function when the user finishes entering the last value
+            $('#number_of_days').on('input', function () {
+                insertTempData();
+            });
+
+            function insertTempData() {
+            const formData = {
+                title: $('#titleInput').val(),
+                client_name: $('#clientNameDropdown').val(),
+                contact_person_name: $('#clientContactName').val(),
+                contact_person_number: $('#clientContactNumber').val(),
+                status: $('#status').val(),
+                venue_name: $('#venueAddressDropdown').val(),
+                venue_address: $('#venueAddressInput').val(),
+                input_notes: $('#inputNotes').val(),
+                crew_type: $('#crewQuantity').val(),
+                employee: $('#employee').val(),
+                setup_date: $('#prepDate').val(),
+                rehearsal_date: $('#outDate').val(),
+                event_date: $('#showStart').val(),
+                dismantle_date: $('#showEnd').val(),
+                total_days: $('#number_of_days').val(),
+                amount_row: $('#total_amount').val(),
+                discount: $('#discount').val(),
+                amount_after_discount: $('#discounted_amount').val(),
+                total_amount: $('#total_amount_cal').val()
+            };
+
+            console.log('Fetch the DATA of FORM:', formData);
+
+           $.ajax({
+    url: '/insert-temp-data/',
+    type: 'POST',
+    data: JSON.stringify(formData),
+    contentType: 'application/json',
+    success: function (response) {
+        console.log('AJAX success callback hit');
+        if (response.status === 'success') {
+            console.log('Response status: success');
+            // Dynamically create and show the success message box
+            $('body').append('<div id="message-box" style="position:fixed; top:90px; right:10px; background-color:lightgreen; padding:10px; border:1px solid green;">Data inserted successfully.</div>');
+            console.log('Message box appended');
+            // Hide and remove the message box after 10 seconds
+            setTimeout(function() {
+                $('#message-box').fadeOut(function() {
+                    console.log('Message box fading out');
+                    $(this).remove();
+                });
+            }, 5000);
+
+            // Store tempId in a global variable or update the function directly
+            window.tempId = response.temp_id;
+        } else {
+            console.log('Response status: error');
+            // Dynamically create and show the error message box
+            $('body').append('<div id="message-box" style="position:fixed; top:20px; right:20px; background-color:lightcoral; padding:10px; border:1px solid red;">Error inserting data: ' + response.error + '</div>');
+
+            // Hide and remove the message box after 10 seconds
+            setTimeout(function() {
+                $('#message-box').fadeOut(function() {
+                    $(this).remove();
+                });
+            }, 10000);
+        }
+    },
+    error: function (error) {
+        console.log('AJAX error callback hit');
+        // Dynamically create and show a generic error message box
+        $('body').append('<div id="message-box" style="position:fixed; top:20px; right:20px; background-color:lightcoral; padding:10px; border:1px solid red;">Error inserting data</div>');
+
+        // Hide and remove the message box after 10 seconds
+        setTimeout(function() {
+            $('#message-box').fadeOut(function() {
+                $(this).remove();
+            });
+        }, 10000);
+
+        console.log(error);
+    }
+});
+        }
+
+
+        // General Details Section End
+
+
+        // Add Equipment Section
+
+
+            // Function to calculate the total amount
+            function calculateTotalAmount(tempId) {
+                $.ajax({
+                    url: `/calculate-total-amount/${tempId}/`,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#total_amount').val(response.total_amount);
+                    },
+                    error: function(error) {
+                        console.error('Error fetching total amount:', error);
+                    }
+                });
+            }
+
+            // Trigger calculation when quantity is clicked
+            $('.quantity-input-selected').on('click', function() {
+                if (typeof window.tempId !== 'undefined') {
+                    calculateTotalAmount(window.tempId);
+                } else {
+                    alert('Job ID is not available. Please ensure the job data is loaded correctly.');
+                }
+            });
+
+
+                // Function to calculate discount and total amounts
+            function calculateAmounts() {
+                // Get the values of the total amount and discount
+                var totalAmount = parseFloat($('#total_amount').val());
+                var discount = parseFloat($('#discount').val());
+
+                // Check if both totalAmount and discount are numbers
+                if (!isNaN(totalAmount) && !isNaN(discount)) {
+                    // Calculate the discounted amount
+                    var discountedAmount = totalAmount - (totalAmount * discount / 100);
+                    $('#discounted_amount').val(discountedAmount.toFixed(2));
+
+                    // Calculate the total amount with GST
+                    var totalAmountWithGST = discountedAmount * 1.18;
+                    $('#total_amount_cal').val(totalAmountWithGST.toFixed(2));
+                }
+            }
+
+            // Trigger the calculation when the discount value changes
+            $('#discount').on('input', function() {
+                calculateAmounts();
+            });
+
+            // You can also trigger the calculation when the total amount changes
+            $('#total_amount').on('input', function() {
+                calculateAmounts();
+            });
+
+            function updateTempDetails() {
+    const amountRow = $('#total_amount').val();
+    const discount = $('#discount').val();
+    const discountedAmount = $('#discounted_amount').val();
+    const totalAmount = $('#total_amount_cal').val();
+
+    const csrfToken = getCSRFToken();
+
+    if (typeof window.tempId !== 'undefined') {
+        $.ajax({
+            url: `/update-total-amount-details/${window.tempId}/`,
+            type: 'POST',
+            data: {
+                'amount_row': amountRow,
+                'discount': discount,
+                'discounted_amount': discountedAmount,
+                'total_amount': totalAmount,
+            },
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                } else {
+                    alert('Error updating details: ' + response.message);
+                }
+            },
+            error: function(error) {
+                alert('Error updating details');
+                console.log(error);
+            }
+        });
+    } else {
+        alert('Job ID is not available. Please ensure the job data is loaded correctly.');
+    }
+}
+
+// Attach the updateTempDetails function to the input fields
+$('#total_amount, #discount, #discounted_amount, #total_amount_cal').on('input', updateTempDetails);
+
+            function getCSRFToken() {
+    let cookieValue = null;
+    const name = 'csrftoken';
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+            // Variable to keep track of timeout ID
+            let timeoutId;
+
+            $('#searchCategory').on('input', function () {
+    var query = $(this).val();
+    var dropdown = $('#equipmentDropdown');
+
+    if (query.length > 0) {
+        $.ajax({
+            url: '/search-equipment/',
+            data: { 'query': query },
+            success: function (data) {
+                dropdown.empty(); // Clear previous results
+                if (data.length > 0) {
+                    var table = '<table class="table table-bordered"><thead><tr><th>Equipment</th><th>Available</th><th>Quantity</th></tr></thead><tbody>';
+                    data.forEach(function (item) {
+                        var disabledClass = item.available_quantity === 0 ? 'disabled-option' : '';
+                        table += `
+                    <tr class="${disabledClass}">
+                        <td>${item.equipment_name}</td>
+                        <td style="text-align: center;">${item.available_quantity}</td>
+                        <td>
+                            <input type="number" class="form-control quantity-input-dropdown" data-equipment-name="${item.equipment_name}" data-available-quantity="${item.available_quantity}" min="1" max="${item.available_quantity}" placeholder="Enter quantity" style="width: 73px;">
+                        </td>
+                    </tr>`;
+                    });
+                    table += '</tbody></table>';
+                    dropdown.html(table); // Use html() instead of append()
+                    dropdown.show();
+
+                    // Attach event listener to the quantity input fields
+                    $('.quantity-input-dropdown').on('input', function () {
+                        var input = $(this);
+                        var equipmentName = input.data('equipment-name');
+                        var quantity = input.val();
+                        var tempId = window.tempId; // Fetch tempId from window.tempId
+
+                        if (quantity && !isNaN(quantity) && parseInt(quantity, 10) > 0) {
+                            var equipmentDetails = [{
+                                temp_id: tempId, // Use tempId from window.tempId
+                                equipment_name: equipmentName,
+                                quantity: parseInt(quantity, 10), // Ensure the quantity is sent as an integer
+                            }];
+
+                            // Trigger the insertEquipmentDetails function directly
+                            $.ajax({
+                                url: '/insert-equipment-details/',
+                                type: 'POST',
+                                data: JSON.stringify({ equipmentDetails: equipmentDetails }),
+                                contentType: 'application/json',
+                                success: function (response) {
+                                    if (response.status === 'success') {
+                                        {#alert('Equipment details inserted successfully');#}
+                                        calculateTotalAmount(tempId); // Use tempId in calculateTotalAmount
+                                    } else {
+                                        alert('Error inserting equipment details: ' + response.error);
+                                    }
+                                },
+                                error: function (error) {
+                                    alert('Error inserting equipment details');
+                                    console.log(error);
+                                }
+                            });
+                        } else {
+                            console.error('Invalid or missing quantity for equipment:', equipmentName);
+                        }
+                    });
+
+                } else {
+                    dropdown.hide();
+                }
+            }
+        });
+    } else {
+        dropdown.hide();
+    }
+});
+
+
+            // Event handler for quantity input change within the dropdown table
+            $(document).on('input', '#equipmentDropdown .quantity-input-dropdown', function () {
+                // Clear any existing timeout
+                clearTimeout(timeoutId);
+
+                // Set a new timeout
+                timeoutId = setTimeout(() => {
+                    var quantity = parseInt($(this).val(), 10);
+                    var availableQuantity = parseInt($(this).data('available-quantity'), 10);
+                    var equipmentName = $(this).data('equipment-name');
+
+                    if (isNaN(quantity) || quantity <= 0) {
+                        return; // Exit if the input is not a valid number or less than 1
+                    }
+
+                    if (quantity > availableQuantity) {
+                        alert('The requested quantity is not available in stock.');
+                        $(this).val(''); // Clear the quantity input field
+                    } else {
+                        var row = $('#selectedEquipmentTable tbody tr').filter(function () {
+                            return $(this).find('td:first').text() === equipmentName;
+                        });
+
+                        if (row.length > 0) {
+                            // If the row already exists, update the quantity
+                            row.find('.quantity-input-selected').val(quantity);
+                        } else {
+                            // Add a new row to the selected equipment table with the equipment name and quantity
+                            var newRow = `
+                    <tr>
+                        <td class="equipment-name">${equipmentName}</td>
+                        <td>
+                            <input type="number" class="form-control quantity-input-selected" value="${quantity}" max="${availableQuantity}" style="width: 100px; padding-left: 14px;">
+                        </td>
+                    </tr>`;
+                            $('#selectedEquipmentTable tbody').append(newRow);
+                        }
+
+                        // Clear the quantity input field after adding or updating
+                        $(this).val('');
+                    }
+                }, 500); // Delay of 500 milliseconds
+            });
+
+            // Event handler for quantity input change within the selected equipment table
+            $(document).on('input', '#selectedEquipmentTable .quantity-input-selected', function () {
+                var quantity = parseInt($(this).val(), 10);
+                var equipmentName = $(this).closest('tr').find('td:first').text();
+
+                if (isNaN(quantity) || quantity < 0) {
+                    return; // Exit if the input is not a valid number or less than 0
+                }
+
+                if (quantity === 0) {
+                    // Remove the row from #selectedEquipmentTable if quantity is 0
+                    $(this).closest('tr').remove();
+                }
+            });
+
+            // Hide the dropdown when clicking outside
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.input-container').length) {
+                    $('#equipmentDropdown').hide();
+                }
+            });
+
+            function fetchMasterCategories() {
+                $.ajax({
+                    url: '/fetch_master_categories/',
+                    type: 'GET',
+                    success: function (data) {
+                        console.log('Fetched Master Category Names:', data);
+                        var masterCategories = data.master_categories;
+                        window.masterCategories = masterCategories;
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching master categories:', error);
+                    }
+                });
+            }
+
+            function loadSubcategories() {
+                $.ajax({
+                    url: '/fetch-all-subcategories/',
+                    type: 'GET',
+                    success: function(response) {
+                        $('.quantity-container').empty();  // Clear the container
+
+                        // Create the accordion structure
+                        $('.quantity-container').append('<div id="accordion"></div>');
+                        const accordion = $('#accordion');
+
+                        // Populate the accordion with fetched subcategories
+                        $.each(response, function(index, subcategory) {
+                            accordion.append(`
+                                <div class="accordion-item" style="width: 100%;">
+                                    <div class="accordion-header" data-target="${subcategory.id}">
+                                        <span class="equipment-name">${subcategory.name}</span>
+                                        <button type="button" class="btn btn-success plus-btn" style="background-color: #0d99ff;" data-target="${subcategory.id}">+</button>
+                                    </div>
+                                    <div class="accordion-content" id="content-${subcategory.id}" style="display: none;">
+                                        <!-- Additional details can be inserted here -->
+                                    </div>
+                                </div>
+                            `);
+                        });
+
+                        // Add event listener to handle button click
+                        $('.plus-btn').on('click', function() {
+                            const contentId = $(this).data('target');
+                            const contentElement = $(`#content-${contentId}`);
+
+                            if (contentElement.is(':visible')) {
+                                contentElement.slideUp();  // Hide the content
+                            } else {
+                                contentElement.slideDown();  // Show the content
+                            }
+                        });
+                    },
+                    error: function(error) {
+                        console.error('Error fetching subcategories:', error);
+                    }
+                });
+            }
+
+            // Load all subcategories on page load
+            loadSubcategories();
+
+            // Event listener for plus button
+            $(document).on('click', '.plus-btn', function() {
+                // Extract the numeric equipment ID from the data-target attribute
+                const equipmentId = $(this).closest('.accordion-header').data('target');
+
+                $.ajax({
+                    url: '/fetch-equipment-with-barcodes/',  // URL should match your Django URL configuration
+                    type: 'GET',
+                    data: { equipment_id: equipmentId },
+                    success: function(response) {
+                        if (response.length > 0) {
+                            let contentHtml = '';
+                            $.each(response, function(index, equipment) {
+                                contentHtml += `<p style="padding: 0px; text-align: center; border-bottom: 1px solid #ccc;">${equipment.equipment_name}</p>`;
+                            });
+
+                            // Display the equipment names directly
+                            $(`#content-${equipmentId}`).html(contentHtml).addClass('open');
+                        } else {
+                            $(`#content-${equipmentId}`).html('<p>No equipment available.</p>').addClass('open');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching equipment names:', error);
+                    }
+                });
+
+
+            });
+
+            $(document).on('input', '.quantity-input-sub-category', function () {
+                var $inputField = $(this);
+                var quantity = parseInt($inputField.val(), 10);
+                var availableQuantity = parseInt($inputField.closest('tr').find('td[data-available-quantity]').data('available-quantity'), 10);
+                var equipmentName = $inputField.closest('tr').find('td:first').text();
+
+                if (isNaN(quantity) || quantity < 0) {
+                    return; // Exit if the input is not a valid number or less than 0
+                }
+
+                if (quantity > availableQuantity) {
+                    alert('The requested quantity exceeds the available quantity.');
+                    $inputField.val(''); // Clear the quantity input field
+                    return;
+                }
+
+                setTimeout(function () {
+                    var existingRow = $('#selectedEquipmentTable tbody tr').filter(function() {
+                        return $(this).find('td:first').text() === equipmentName;
+                    });
+
+                    if (existingRow.length > 0) {
+                        if (quantity === 0) {
+                            existingRow.remove();
+                        } else {
+                            existingRow.find('td:eq(1) input').val(quantity);
+                        }
+                    } else {
+                        if (quantity > 0) {
+                            var newRow = `
+                                <tr>
+                                    <td style="text-align: left;">${equipmentName}</td>
+                                    <td style="text-align: left;">
+                                        <input type="text" class="form-control quantity-input" value="${quantity}" style="text-align: center; padding-left: 0px;" />
+                                    </td>
+                                </tr>
+                            `;
+                            $('#selectedEquipmentTable tbody').append(newRow);
+
+                            // Automatically open the Equipment Search accordion section
+                            var equipmentSearchAccordion = $('#collapseOne');
+                            if (!equipmentSearchAccordion.hasClass('show')) {
+                                equipmentSearchAccordion.collapse('show'); // Open the accordion
+                            }
+                        }
+                    }
+
+                    $inputField.val('');
+                }, 500);
+            });
+
+            $(document).on('input', '.quantity-input', function () {
+                var $inputField = $(this);
+                var quantity = parseInt($inputField.val(), 10);
+
+                if (quantity === 0) {
+                    $inputField.closest('tr').remove();
+                }
+            });
+
+            // Add Equipment Section End
+
+            // Add Sub Vendor Section Start
+            $('#add-sub-vendor-row-btn').click(function (event) {
+                event.preventDefault();
+                // Create the new row HTML
+                var newRow = `
+            <tr>
+                <td>
+                    <input type="text" name="vendor-name" placeholder="Vendor Name" class="form-control">
+                </td>
+                <td>
+                    <input type="text" name="equipment-name" placeholder="Equipment Name" class="form-control">
+                </td>
+                <td>
+                    <input type="number" name="quantity" placeholder="Quantity" class="form-control">
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary save-sub-vendor-row me-2" data-toggle="tooltip" title="Save Sub Vendor Row" id="insertSubVendor" style="background-color: #0d99ff;"><i class="fa fa-check"></i></button>
+                    <button type="button" class="btn btn-sm btn-danger remove-sub-vendor-row me-2" data-toggle="tooltip" title="Delete Sub Vendor Row" style="background-color: #ff5e5e;"><i class="fa fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+
+                // Append the new row to the table body
+                $('#sub-vendor-table').append(newRow);
+            });
+
+            // Handle click event for Save button
+           $('#sub-vendor-table').on('click', '.save-sub-vendor-row', function(event) {
+        event.preventDefault(); // Prevent the form submission
+
+        const row = $(this).closest('tr');
+        const subVendorDetails = {
+            temp_id: window.tempId,  // Ensure tempId is correctly defined
+            vendor_name: row.find('input[name="vendor-name"]').val(),
+            sub_equipment_name: row.find('input[name="equipment-name"]').val(),
+            sub_quantity: row.find('input[name="quantity"]').val(),
+        };
+
+        // Check the structure before sending
+        console.log('Sending Data:', subVendorDetails);
+
+        $.ajax({
+            url: '/insert-sub-vendor-details/',  // Ensure this URL is correct
+            type: 'POST',
+            data: JSON.stringify(subVendorDetails),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('Sub-vendor details inserted successfully');
+                } else {
+                    alert('Error inserting sub-vendor details: ' + response.error);
+                }
+            },
+            error: function(error) {
+                alert('Error inserting sub-vendor details');
+                console.log(error);
+            }
+        });
+    });
+
+            // Remove row functionality
+            $('#sub-vendor-table').on('click', '.remove-sub-vendor-row', function () {
+                $(this).closest('tr').remove();
+            });
+
+            //Add Sub Vendor Section End
+
+            // Crew Allocation Section Start
+
+            $('#employeeNameDropdown').on('input', function() {
+                    let query = $(this).val();
+                    if (query.length > 0) { // Start searching after at least 1 characters
+                        $.ajax({
+                            url: '/search-employee/',  // Adjust the URL to your Django view
+                            data: {
+                                'term': query
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                let dropdown = $('#employeeNameDropdown').siblings('.employee-dropdown-menu');
+                                dropdown.empty(); // Clear any existing options
+
+                                if(data.length === 0) {
+                                    dropdown.append('<li class="employee-dropdown-item">No results found</li>');
+                                } else {
+                                    $.each(data, function(index, employee) {
+                                        dropdown.append(
+                                            `<li class="employee-dropdown-item" data-id="${employee.id}">${employee.name}</li>`
+                                        );
+                                    });
+                                }
+
+                                dropdown.show(); // Show the dropdown
+                            }
+                        });
+                    } else {
+                        $('#employeeNameDropdown').siblings('.employee-dropdown-menu').hide(); // Hide the dropdown if input is too short
+                    }
+                });
+
+            // Optionally, handle click on the dropdown items
+            $(document).on('click', '.employee-dropdown-item', function(){
+                let employeeName = $(this).text();
+                let employeeId = $(this).data('id');
+
+                $('#employeeNameDropdown').val(employeeName);
+                // You can set the ID in a hidden input if needed
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'employee_id',
+                    value: employeeId
+                }).appendTo('form');
+
+                $('.employee-dropdown-menu').hide(); // Hide the dropdown after selection
+            });
+
+            $(document).on('click', '.employee-dropdown-item', function(){
+                let employeeName = $(this).text();
+                let employeeId = $(this).data('id');
+                let tempId = window.tempId;  // Fetch the tempId from the window object
+                let crewType = $('#crewType').val();  // Assuming crewType is stored in a hidden input or can be fetched from the context
+
+                $('#employeeNameDropdown').val(employeeName);
+
+                // Send the data to the server via AJAX
+                $.ajax({
+                    url: '/insert-crew-allocation/',  // Adjust the URL to your Django view
+                    method: 'POST',
+                    data: {
+                        'temp_id': tempId,  // Use tempId from the window object
+                        'crew_type': crewType,
+                        'employee_id': employeeId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'  // Include CSRF token for security
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+
+                            // Append the new row to the table
+                            $('#crew-allocation-table-body').append(`
+                                <tr data-id="${response.id}">
+                                    <td>${crewType}</td>
+                                    <td>${employeeName}</td>
+                                    <td>
+                                        <button class="btn btn-secondary" id="deleteButton"><i class="fa fa-times"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                        } else {
+                            alert('Failed to assign employee.');
+                        }
+                    },
+                    error: function() {
+                        alert('Error occurred while assigning employee.');
+                    }
+                });
+
+                $('.employee-dropdown-menu').hide(); // Hide the dropdown after selection
+            });
+
+            $(document).on('click', '#deleteButton', function(event) {
+                event.preventDefault();  // Prevent the default action
+
+                let row = $(this).closest('tr');
+                let id = row.data('id');
+
+                // Optionally confirm deletion
+                if (confirm('Are you sure you want to delete this row?')) {
+                    $.ajax({
+                        url: '/delete-crew-allocation/',  // Adjust the URL to your Django view
+                        method: 'POST',
+                        data: {
+                            'id': id,  // Send the row ID to the server
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'  // Include CSRF token for security
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                row.remove();  // Remove the row from the table
+
+                            } else {
+                                alert('Failed to delete the row.');
+                            }
+                        },
+                        error: function() {
+                            alert('Error occurred while deleting the row.');
+                        }
+                    });
+                }
+            });
+
+// Filter table based on search input
+            $('#searchCrew').on('input', function () {
+                var searchText = $(this).val().trim().toLowerCase();
+
+                $('#crew-allocation-table-body tr').each(function () {
+                    var employeeId = $(this).find('td:eq(3)').text().trim().toLowerCase(); // Employee ID
+                    var employeeName = $(this).find('td:eq(4)').text().trim().toLowerCase(); // Employee Name
+                    var emailId = $(this).find('td:eq(5)').text().trim().toLowerCase(); // Email Address
+                    var contactNumber = $(this).find('td:eq(6)').text().trim().toLowerCase(); // Contact Number
+
+                    console.log('Checking row:', employeeId, employeeName, emailId, contactNumber); // Debugging line
+
+                    if (employeeId.includes(searchText) || employeeName.includes(searchText) || emailId.includes(searchText) || contactNumber.includes(searchText)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                if (searchText === '') {
+                    $('#category-table-body tr').show(); // Show all rows if search input is empty
+                }
+            });
+
+            function updatePagination(response) {
+                const {total_items, total_pages, current_page} = response;
+                $('#pagination-count').text(`Showing ${current_page * 10 - 9} to ${Math.min(current_page * 10, total_items)} of ${total_items} entries`);
+                $('#prev-page-btn').prop('disabled', current_page === 1);
+                $('#next-page-btn').prop('disabled', current_page === total_pages);
+            }
+
+            $('#prev-page-btn').click(function () {
+                const currentPage = parseInt($('#pagination-count').attr('data-current-page'));
+                fetchEmployees(currentPage - 1);
+            });
+
+            $('#next-page-btn').click(function () {
+                const currentPage = parseInt($('#pagination-count').attr('data-current-page'));
+                fetchEmployees(currentPage + 1);
+            });
+            // Crew Allocation Section End
+
+            //Transportation Allocation Section
+
+// Add event listener to 'Add More' button
+$('#addTransportation').click(function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Get the selected transportation type
+    var transportationType = $('input[name="transportation_type"]:checked').val();
+
+    var newRowHtml = `
+        <div class="row transportation-row on-vehicle-row">
+            <div class="col-xl-4 mb-3">
+                <label class="form-label">Driver Name</label>
+                <input type="text" class="form-control" placeholder="Enter Driver Name" name="driver_name">
+            </div>
+            <div class="col-xl-3 mb-3">
+                <label class="form-label">Contact Number</label>
+                <input type="number" class="form-control" placeholder="Enter Contact Number" name="contact_number">
+            </div>
+            <div class="col-xl-3 mb-3">
+                <label class="form-label">Vehicle Number</label>
+                <input type="text" class="form-control" placeholder="Enter Vehicle Number" name="vehicle_number">
+            </div>
+            <div class="col-xl-2 mb-3" style="margin-top: 36px;">
+                <button type="button" class="btn btn-success saveRow" data-type="on_vehicle"><i class="fa fa-save"></i></button>
+                <button type="button" class="btn btn-danger light cancelRow"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+    `;
+
+    var newOutSideRowHtml = `
+        <div class="row transportation-row outside-vehicle-row">
+            <div class="col-xl-4 mb-3">
+                <label class="form-label">Outside Driver Name</label>
+                <input type="text" class="form-control" placeholder="Enter Driver Name" name="outside_driver_name">
+            </div>
+            <div class="col-xl-3 mb-3">
+                <label class="form-label">Outside Contact Number</label>
+                <input type="number" class="form-control" placeholder="Enter Contact Number" name="outside_contact_number">
+            </div>
+            <div class="col-xl-3 mb-3">
+                <label class="form-label">Outside Vehicle Number</label>
+                <input type="text" class="form-control" placeholder="Enter Vehicle Number" name="outside_vehicle_number">
+            </div>
+            <div class="col-xl-2 mb-3" style="margin-top: 36px;">
+                <button type="button" class="btn btn-success saveRow" data-type="outside_vehicle"><i class="fa fa-save"></i></button>
+                <button type="button" class="btn btn-danger light cancelRow"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+    `;
+
+    // Check if a transportation type is selected
+    if (!transportationType) {
+        alert('Please select a transportation type.');
+        return; // Exit the function if no transportation type is selected
+    }
+
+    // Append the new row to the appropriate section
+    if (transportationType === 'on_vehicle') {
+        $('#onVehicleFields').append(newRowHtml);
+    } else if (transportationType === 'outside_vehicle') {
+        $('#outsideVehicleFields').append(newOutSideRowHtml);
+    }
+});
+
+// Add event listener to dynamically created 'saveRow' buttons
+$(document).on('click', '.saveRow', function(event) {
+    var button = $(this);
+    var row = button.closest('.row');
+    var type = button.data('type'); // Get the type of transportation
+
+    var data = {
+        temp_id: window.tempId,
+        driver_name: '',
+        contact_number: '',
+        vehicle_number: '',
+        outside_driver_name: '',
+        outside_contact_number: '',
+        outside_vehicle_number: ''
+    };
+
+    // Collect data based on transportation type
+    if (type === 'on_vehicle') {
+        data.driver_name = row.find('input[name="driver_name"]').val();
+        data.contact_number = row.find('input[name="contact_number"]').val();
+        data.vehicle_number = row.find('input[name="vehicle_number"]').val();
+    } else if (type === 'outside_vehicle') {
+        data.outside_driver_name = row.find('input[name="outside_driver_name"]').val();
+        data.outside_contact_number = row.find('input[name="outside_contact_number"]').val();
+        data.outside_vehicle_number = row.find('input[name="outside_vehicle_number"]').val();
+    }
+
+    $.ajax({
+        url: '/insert_transportation/', // Replace with your actual URL
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        success: function(response) {
+            alert('Data saved successfully!');
+            // Optionally provide feedback or update the UI without removing the row
+        },
+        error: function(xhr, status, error) {
+            alert('An error occurred: ' + error);
+        }
+    });
+});
+
+// Add event listener to dynamically created 'cancelRow' buttons
+$(document).on('click', '.cancelRow', function(event) {
+    // Optionally handle row cancellation if needed
+    $(this).closest('.row').remove(); // Remove the row if desired
+});
+
+            // Function to handle showing/hiding fields based on selected radio button
+            function toggleFields() {
+                var selectedValue = $('input[name="transportation_type"]:checked').val();
+
+                if (selectedValue === "on_vehicle") {
+                    $('#onVehicleFields').show();
+                    $('#outsideVehicleFields').hide();
+                } else if (selectedValue === "outside_vehicle") {
+                    $('#onVehicleFields').hide();
+                    $('#outsideVehicleFields').show();
+                } else {
+                    // Hide both if no option is selected
+                    $('#onVehicleFields').hide();
+                    $('#outsideVehicleFields').hide();
+                }
+            }
+
+            // Initial call to handle any pre-selected radio button
+            toggleFields();
+
+            // Add change event listener to radio buttons
+            $('input[name="transportation_type"]').change(function () {
+                toggleFields();
+            });
+            //Transportation Allocation Section End
+
+  function getCsrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    }
+
+            // Function to fetch CSRF token from the form
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+        });
+
+</script>
+
+    <body>
+
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        {% include 'product_tracking/navheader.html' %}
+        <!--**********************************
+            Nav header end
+        ***********************************-->
+
+        <!--**********************************
+                    Header start
+        ***********************************-->
+        {% include 'product_tracking/header.html' %}
+        <!--**********************************
+                    Header end
+        ***********************************-->
+
+        <!--**********************************
+            Sidebar start
+        ***********************************-->
+        {% include 'product_tracking/sidebar.html' %}
+        <!--**********************************
+            Sidebar end
+        ***********************************-->
+
+        <!--**********************************
+            Content body start
+        ***********************************-->
+
+        <div class="content-body">
+            <div class="page-titles">
+                <ol class="breadcrumb">
+                    <li><h5 class="bc-title">Order book</h5></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">
+                        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.125 6.375L8.5 1.41667L14.875 6.375V14.1667C14.875 14.5424 14.7257 14.9027 14.4601 15.1684C14.1944 15.4341 13.8341 15.5833 13.4583 15.5833H3.54167C3.16594 15.5833 2.80561 15.4341 2.53993 15.1684C2.27426 14.9027 2.125 14.5424 2.125 14.1667V6.375Z"
+                                  stroke="#2C2C2C" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.375 15.5833V8.5H10.625V15.5833" stroke="#2C2C2C" stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                        Add Jobs </a>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="form-container">
+                <div class="step-buttons">
+                    <button class="step-btn" onclick="showStep(1)" id="generalDetailsBtn">General Details</button>
+                    <button class="step-btn" onclick="validateStep(1, 2)" id="addEquipmentBtn">Add Equipment</button>
+                    <button class="step-btn" onclick="validateStep(1, 3)" id="addSubVendorBtn">Add Sub Vendor</button>
+                    <button class="step-btn" onclick="validateStep(1, 4)" id="crewAllocationBtn">Crew Allocation</button>
+                    <button class="step-btn" onclick="validateStep(1, 5)" id="transportationBtn">Transportation</button>
+                </div>
+
+                <form id="multi-step-form" method="POST">
+                {% csrf_token %}
+
+                    <div class="form-step" id="step-1">
+                        <div class="row">
+                            <div class="col-xl-6 mb-3">
+                                <label for="titleInput" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="titleInput" name="title"
+                                       required>
+                            </div>
+                            <div class="col-xl-6 mb-3">
+                            <div class="dropdown">
+                                <label for="clientNameDropdown" class="form-label">Client Name</label>
+                                <input type="text" class="form-control dropdown-toggle"
+                                    id="clientNameDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    placeholder="Select Client Name" autocomplete="off"
+                                    name="client_name">
+                                <ul class="dropdown-menu" aria-labelledby="clientNameDropdown">
+                                    <!-- Dynamic options will be appended here -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 mb-3">
+                            <div class="dropdown">
+                                <label for="clientContactName" class="form-label">Contact Person Name</label>
+                                <select class="form-control" id="clientContactName" name="contact_person_name">
+                                    <!-- Dynamic options will be appended here -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 mb-3">
+                            <div class="dropdown">
+                                <label for="clientContactNumber" class="form-label">Contact Person Number</label>
+                                <input type="text" class="form-control" id="clientContactNumber"
+                                    placeholder="Contact Person Number"
+                                    name="contact_person_number" readonly>
+                            </div>
+                        </div>
+
+
+                            <div class="col-xl-3 mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="default-select form-control" id="status"
+                                        name="status">
+                                    <option value="Quotation">Quotation</option>
+                                    <option value="Perfoma">Perfoma</option>
+                                    <option value="Prepsheet">Prepsheet</option>
+                                    <option value="Delivery Challan">Delivery Challan</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-3 mb-3" id="quotation-fields">
+                                <label for="crewType" class="form-label">Crew Quantity</label>
+                                <input type="text" class="form-control" id="crewQuantity"
+                                           placeholder="Enter Crew Quantity"
+                                           name="crew_quantity" style="margin-top: -2px;">
+                            </div>
+                            <div class="col-xl-4 mb-3">
+                                <div class="dropdown">
+                                    <label for="venueAddressDropdown" class="form-label">Venue</label>
+                                    <input type="text" class="form-control dropdown-toggle" id="venueAddressDropdown"
+                                        data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Venue Name"
+                                        autocomplete="off" name="venue_address">
+                                    <ul class="dropdown-menu" aria-labelledby="venueAddressDropdown" id="dropdown-item">
+                                        <!-- Dynamic options will be appended here -->
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 mb-3">
+                                <label for="venueAddressInput" class="form-label">Venue Address</label>
+                                <input type="text" class="form-control" id="venueAddressInput" placeholder="Venue Address"
+                                    name="venue_address" readonly>
+                            </div>
+                            <div class="col-xl-4 mb-3">
+                                <label for="inputNotes" class="form-label">Notes</label>
+                                <input type="text" class="form-control" id="inputNotes" placeholder="Enter Notes"
+                                    name="input_notes">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xl-3 mb-3 custom-width">
+                                    <label for="preDate" class="form-label">Setup Date</label>
+                                    <input type="date" class="form-control" id="prepDate"
+                                           name="setup_date" required>
+                                </div>
+                                <div class="col-xl-2 mb-3 custom-width">
+                                    <label for="outDate" class="form-label">Rehearsal Date</label>
+                                    <input type="date" class="form-control" id="outDate"
+                                           name="rehearsal_date" required>
+                                </div>
+                                <div class="col-xl-2 mb-3 custom-width">
+                                    <label for="showStart" class="form-label">Event Date</label>
+                                    <input type="date" class="form-control" id="showStart"
+                                           name="start_date" required>
+                                </div>
+                                <div class="col-xl-2 mb-3 custom-width">
+                                    <label for="showEnd" class="form-label">Dismantle Date</label>
+                                    <input type="date" class="form-control" id="showEnd" name="end_date"
+                                           required>
+                                </div>
+                                <div class="col-xl-2 mb-3 custom-width">
+                                    <label for="number_of_days" class="form-label">Number of
+                                        Days</label>
+                                    <input type="number" class="form-control" id="number_of_days" name="total_days">
+                                </div>
+                                <div class="col-xl-3 mb-3" id="prepsheet-fields"
+                                 style="display: none; width: 176px; margin: 0px; padding: 0px;">
+                                <label class="form-label">Handler</label>
+                                <select class="default-select form-control" id="employee"
+                                        name="prep_sheet"
+                                        multiple="multiple">
+                                    <option value="" data-display="Select">Select</option>
+                                </select>
+                            </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step-2">
+                        <!-- First Section -->
+                        <div class="row">
+                        <div class="row" id="quotation-fields1">
+                                <div class="col-xl-3 mb-3">
+                                    <label for="total_amount" class="form-label">Amount</label>
+                                    <input type="number" class="form-control" id="total_amount"
+                                           name="amount_row">
+                                </div>
+                                <div class="col-xl-3 mb-3">
+                                    <label for="discount" class="form-label">Discount(%)</label>
+                                    <input type="number" class="form-control" id="discount"
+                                           name="discount">
+                                </div>
+                                <div class="col-xl-3 mb-3">
+                                    <label for="discounted_amount" class="form-label">Amount After
+                                        Discount</label>
+                                    <input type="text" class="form-control" id="discounted_amount"
+                                           name="discounted_amount">
+                                </div>
+                                <div class="col-xl-3 mb-3">
+                                    <label for="total_amount_cal" class="form-label">Total Amount
+                                        (18% GST)</label>
+                                    <input type="number" class="form-control" id="total_amount_cal"
+                                           name="total_amount">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="left-equipment-container">
+                                    <div class="quantity-container" >
+                                        <!-- Content that was dynamically inserted into the accordion -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Second Section -->
+                            <div class="col-md-8">
+                            <div class="right-equipment-container">
+
+                            <!-- Content for Equipment Search -->
+                            <div class="row">
+        <!-- Left Container: Equipment Search and Quantity Input -->
+            <div class="search-container">
+                <div class="input-container">
+                    <input type="text" id="searchCategory" class="form-control" placeholder="Search for equipment...">
+                    <div id="equipmentDropdown" class="dropdown-menu">
+                        <!-- Dropdown content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+        <!-- Right Container: Table -->
+            <div class="equipment-table-container" style="margin-top: 6px;">
+                <table id="selectedEquipmentTable" class="table custom-table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="text-align: left;">Equipment Name</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody style="align-items: center;">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+    </div>
+                        </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step-3">
+                        <h4>Add Sub Vendor</h4>
+                        <div id="table-container">
+                            <table id="sub-vendor-table" class="table">
+                                <thead>
+                                <tr>
+                                    <th>Vendor Name</th>
+                                    <th>Equipment Name</th>
+                                    <th>Quantity</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Rows will be dynamically added here -->
+                                </tbody>
+                            </table>
+                            <button id="add-sub-vendor-row-btn" class="btn btn-primary" style="margin-top: 9px;">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4>Crew Allocation</h4>
+                            <input type="text" class="form-control" id="searchCrew" placeholder="Search...."
+                                   style="width: 200px;margin-bottom: 7px;">
+                        </div>
+                        <div class="crew-container">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="crew-left-content">
+                                    <div class="crew-row d-flex">
+                                        <div class="col-xl-2 mb-3" style="margin-right: 14px; width: 26%;">
+                                            <label for="crewType" class="form-label">Crew Type</label>
+                                            <select class="default-select form-control" id="crewType" name="crew_type">
+                                                <option value="A1">A1</option>
+                                                <option value="A2">A2</option>
+                                                <option value="A3">A3</option>
+                                            </select>
+                                        </div>
+                                         <div class="col-xl-6 mb-3">
+                            <div class="dropdown">
+                                <label for="employeeNameDropdown" class="form-label">Client Name</label>
+                                <input type="text" class="form-control dropdown-toggle"
+                                    id="employeeNameDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    placeholder="Select Client Name" autocomplete="off"
+                                    name="employee_name">
+                                <ul class="employee-dropdown-menu" aria-labelledby="employeeNameDropdown" id="employee-dropdown-item">
+                                    <!-- Dynamic options will be appended here -->
+                                </ul>
+                            </div>
+                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="crew-right-content">
+                                    <div class="table-responsive table-card">
+                                        <table class="table primary-table-bordered" id="employee-table">
+                                            <thead class="thead-primary">
+                                                <tr>
+
+                                                    <th>Crew Type</th>
+                                                    <th>Employee</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="crew-allocation-table-body">
+                                                <!-- Rows will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-step" id="step-5">
+                        <h4>Transportation Allocation</h4>
+                        <div class="mb-3">
+                            <div class="d-flex">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="transportation_type" id="onVehicle" value="on_vehicle">
+                                    <label class="form-check-label" for="onVehicle">Own Vehicle</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="transportation_type" id="outsideVehicle" value="outside_vehicle">
+                                    <label class="form-check-label" for="outsideVehicle">Outside Vehicle</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fields for "On Vehicle" option -->
+                        <div id="onVehicleFields" class="transportation-fields"></div>
+
+                        <!-- Fields for "Outside Vehicle" option -->
+                        <div id="outsideVehicleFields" class="transportation-fields"></div>
+
+                        <div>
+                            <button class="btn btn-primary light ms-1" id="addTransportation">Add More</button>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+
+        <!--**********************************
+        Main wrapper end
+        ***********************************-->
+        {% include 'product_tracking/footer.html' %}
+    </div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet"/>
+{#    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>#}
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+    </body>
+{% endblock %}

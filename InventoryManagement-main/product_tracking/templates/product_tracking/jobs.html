@@ -1,0 +1,338 @@
+{% include 'product_tracking/head.html' %}
+{% load static %}
+{% block content %}
+    <style>
+        .dropdown-item {
+            width: 370px; /* Set a fixed width for dropdown items */
+            white-space: normal; /* Allow text to wrap */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+            word-wrap: break-word; /* Break long words */
+        }
+
+        .spaced-btn {
+            margin-right: 10px;
+        }
+
+        /* Remove the margin from the last button if needed */
+        .spaced-btn:last-child {
+            margin-right: 0;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            document.getElementById('add-jobs-btn').addEventListener('click', function () {
+                window.location.href = '{% url "job_addition" %}';
+            });
+
+            $('#jobForm').on('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(), // Serialize form data
+                    success: function (response) {
+                        if (response.success) {
+                            // If the server returns a success message, reload the page
+                            alert('Job Added Successfully!!');
+                            window.location.reload();
+                        } else {
+                            // If there's a failure message, display an alert
+                            alert('Kindly add then submit');
+                        }
+                    },
+                    error: function (xhr) {
+                        // Display an alert message with the error
+                        alert('Kindly add then submit');
+                    }
+                });
+            });
+
+            // Fetch status counts
+            $.ajax({
+                url: '/get_status_counts/',
+                type: 'GET',
+                success: function (response) {
+                    $('#perfoma-count').text(response.perfoma_count);
+                    $('#prepsheet-count').text(response.prepsheet_count);
+                    $('#quatation-count').text(response.quatation_count);
+                    $('#DeliveryChallan-count').text(response.deliveryChallan_count);
+                    console.log('count of perfoma:', response.perfoma_count);
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+
+            // Cancel button functionality
+            $('#cancelButton').click(function () {
+                $('#offcanvasExample').offcanvas('hide');
+            });
+
+            let currentPage = 1;
+            const pageSize = 10;
+            let totalItems = 0;
+
+            // Fetch job list
+            function fetchJobList() {
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+
+                $.ajax({
+                    url: '/fetch_job_list/',
+                    type: 'GET',
+                    success: function (data) {
+                        data.sort((a, b) => a.id - b.id);
+                        totalItems = data.length;
+                        const currentPageData = data.slice(startIndex, endIndex);
+                        $('#category-table-body').empty();
+                        $.each(currentPageData, function (index, jobs) {
+                            var row = '<tr>' +
+                                '<td>' + (startIndex + index + 1) + '</td>' +
+                                '<td style="display: none;">' + jobs.id + '</td>' +
+                                '<td><a href="#" class="job-reference-link" data-id="' + jobs.id + '" style="color: #0c6dff; text-decoration: underline;">' + jobs.job_reference_no + '</a></td>' +
+                                '<td>' + jobs.title + '</td>' +
+                                '<td>' + jobs.status + '</td>' +
+                                '</tr>';
+                            $('#category-table-body').append(row);
+
+                            console.log('fetched jobs id:', jobs.id)
+                        });
+                        $('.job-reference-link').on('click', function (e) {
+                            e.preventDefault();
+                            var jobId = $(this).data('id');
+                            window.location.href = '/edit_job/' + jobId + '/';
+
+                        });
+                        updatePaginationCount(data.length);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching job data:', error);
+                    }
+                });
+            }
+
+            // Update pagination count
+            function updatePaginationCount(totalItems) {
+                const totalPages = Math.ceil(totalItems / pageSize);
+                $('#pagination-count').text(`Showing ${currentPage * pageSize - pageSize + 1} to ${Math.min(currentPage * pageSize, totalItems)} of ${totalItems} entries`);
+
+                if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                }
+                $('#prev-page-btn').prop('disabled', currentPage === 1);
+                $('#next-page-btn').prop('disabled', currentPage === totalPages);
+            }
+
+            // Fetch job list on page load
+            fetchJobList();
+
+            // Pagination button functionality
+            $('#prev-page-btn').click(function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchJobList();
+                }
+            });
+
+            $('#next-page-btn').click(function () {
+                const totalPages = Math.ceil(totalItems / pageSize);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchJobList();
+                }
+            });
+        });
+    </script>
+    <body>
+
+    <!--*******************
+        Preloader start
+    ********************-->
+    <div id="preloader">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!--*******************
+        Preloader end
+    ********************-->
+
+    <!--**********************************
+        Main wrapper start
+    ***********************************-->
+    <div id="main-wrapper">
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        {% include 'product_tracking/navheader.html' %}
+        <!--**********************************
+            Nav header end
+        ***********************************-->
+
+        <!--**********************************
+                    Header start
+        ***********************************-->
+        {% include 'product_tracking/header.html' %}
+        <!--**********************************
+                    Header end
+        ***********************************-->
+
+        <!--**********************************
+            Sidebar start
+        ***********************************-->
+        {% include 'product_tracking/sidebar.html' %}
+        <!--**********************************
+            Sidebar end
+        ***********************************-->
+
+        <!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <!-- row -->
+            <div class="page-titles">
+                <ol class="breadcrumb">
+                    <li><h5 class="bc-title">Order book</h5></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">
+                        <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.125 6.375L8.5 1.41667L14.875 6.375V14.1667C14.875 14.5424 14.7257 14.9027 14.4601 15.1684C14.1944 15.4341 13.8341 15.5833 13.4583 15.5833H3.54167C3.16594 15.5833 2.80561 15.4341 2.53993 15.1684C2.27426 14.9027 2.125 14.5424 2.125 14.1667V6.375Z"
+                                  stroke="#2C2C2C" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.375 15.5833V8.5H10.625V15.5833" stroke="#2C2C2C" stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                        Home </a>
+                    </li>
+                    <!-- <li class="breadcrumb-item active"><a href="javascript:void(0)">Task</a></li> -->
+                </ol>
+                <button id="add-jobs-btn" class="btn btn-primary">Add Jobs</button>
+            </div>
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Orders Summary</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box  icon-box-sm task-tab me-2">
+                            <a href="{% url 'task' %}">
+                                <svg width="20" height="20" viewBox="0 0 21 21" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.50032 3H2.66699V8.83333H8.50032V3Z" stroke="white" stroke-width="1.5"
+                                          stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M17.6668 3H11.8335V8.83333H17.6668V3Z" stroke="white" stroke-width="1.5"
+                                          stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M17.6668 12.1667H11.8335V18H17.6668V12.1667Z" stroke="white"
+                                          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8.50032 12.1667H2.66699V18H8.50032V12.1667Z" stroke="white"
+                                          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row task">
+                                    <div class="col-xl-3 col-sm-4 col-6">
+                                        <div class="task-summary">
+                                            <div class="d-flex align-items-baseline">
+                                                <h2 class="text-primary count" id="quatation-count">0</h2>
+                                                <span>Number of jobs for Quatation</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-sm-4 col-6">
+                                        <div class="task-summary">
+                                            <div class="d-flex align-items-baseline">
+                                                <h2 class="text-purple count" id="perfoma-count">0</h2>
+                                                <span>Number of jobs for Perfoma</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-sm-4 col-6">
+                                        <div class="task-summary">
+                                            <div class="d-flex align-items-baseline">
+                                                <h2 class="text-primary count" id="prepsheet-count">0</h2>
+                                                <span>Number of jobs for Prepsheet</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-sm-4 col-6">
+                                        <div class="task-summary">
+                                            <div class="d-flex align-items-baseline">
+                                                <h2 class="text-success count" id="DeliveryChallan-count">0</h2>
+                                                <span>Completed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Task</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+                            <div class="table-responsive table-card">
+                                <table class="table primary-table-bordered"
+                                       id="contact-table">
+                                    <thead class="thead-primary" style="text-align: center;">
+                                    <tr>
+                                        <th scope="col" style="width: 15px;">SR NO</th>
+                                        <th scope="col">Job No</th>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="category-table-body" style="text-align: center;">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div><!-- end card-body -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div id="pagination-count" style="padding: 10px;">Showing 0 to 0 of 0 entries</div>
+                            <div style="padding-bottom: 10px;margin: 5px;">
+                                <button id="prev-page-btn" class="btn btn-primary me-2">Previous</button>
+                                <button id="next-page-btn" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+                    </div><!-- end card -->
+                </div>
+
+            </div>
+        </div>
+        <!--**********************************
+            Content body end
+        ***********************************-->
+
+        <!--**********************************
+                Add Content start
+        ***********************************-->
+
+
+        <!--**********************************
+            Footer start
+        ***********************************-->
+        {% include 'product_tracking/footer.html' %}
+        <!--**********************************
+            Footer end
+        ***********************************-->
+
+    </div>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <!--**********************************
+    Main wrapper end
+    ***********************************-->
+
+    </body>
+{% endblock %}
