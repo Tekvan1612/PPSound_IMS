@@ -12,7 +12,7 @@ h11==0.14.0
 idna==3.7
 packaging==24.0
 pefile==2023.2.7
-pillow==10.3.0
+pillow==10.0.1
 psycopg2-binary==2.9.9
 pydantic==2.7.0
 pydantic_core==2.18.1
