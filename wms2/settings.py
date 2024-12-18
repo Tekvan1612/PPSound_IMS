@@ -1,6 +1,8 @@
 import os
 import dj_database_url
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,11 +44,11 @@ MIDDLEWARE = [
     'product_tracking.middleware.SessionAuthMiddleware',
 ]
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
+cloudinary.config(
+    cloud_name = 'dvemtlkjh',
+    api_key = '679749273824336',
+    api_secret = 't4LpyFrIjqUPJ2stsBvDwHbLcA0'
+)
 
 ROOT_URLCONF = 'wms2.urls'
 
