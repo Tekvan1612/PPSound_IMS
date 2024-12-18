@@ -4378,27 +4378,27 @@ def insert_stock_details(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
 
 
-# def equipment_by_category(request):
-#     category_id = request.GET.get('category_id')
-#
-#     if not category_id:
-#         return JsonResponse({'error': 'category_id is required'}, status=400)
-#
-#     try:
-#         with connection.cursor() as cursor:
-#             # Use the above SQL query to fetch equipment by category
-#             cursor.execute("""
-#                 SELECT e.id, e.equipment_name, e.category_type, e.dimension_height, e.dimension_width,
-#                        e.dimension_length, e.weight, e.volume, e.hsn_no, e.country_origin,
-#                        e.status, e.created_by, e.created_date
-#                 FROM equipment_list e
-#                 JOIN sub_category s ON e.sub_category_id = s.id
-#                 JOIN master_category m ON s.category_id = m.category_id
-#                 WHERE m.category_id = %s;
-#             """, [category_id])
-#             equipment_list = cursor.fetchall()
-#             print("Check the equipment List:", equipment_list)
-#
+def equipment_by_category(request):
+    category_id = request.GET.get('category_id')
+
+    if not category_id:
+        return JsonResponse({'error': 'category_id is required'}, status=400)
+
+    try:
+        with connection.cursor() as cursor:
+            # Use the above SQL query to fetch equipment by category
+            cursor.execute("""
+                SELECT e.id, e.equipment_name, e.category_type, e.dimension_height, e.dimension_width,
+                       e.dimension_length, e.weight, e.volume, e.hsn_no, e.country_origin,
+                       e.status, e.created_by, e.created_date
+                FROM equipment_list e
+                JOIN sub_category s ON e.sub_category_id = s.id
+                JOIN master_category m ON s.category_id = m.category_id
+                WHERE m.category_id = %s;
+            """, [category_id])
+            equipment_list = cursor.fetchall()
+            print("Check the equipment List:", equipment_list)
+
 #             cursor.execute("""
 #                             SELECT
 #         crc.id AS component_id,
@@ -4406,7 +4406,7 @@ def insert_stock_details(request):
 #         crc.quantity,
 #         crc.unit_price,
 #         crc.total,
-#
+
 #         cr.id AS rack_id,
 #         cr.name AS rack_name,
 #         cr.height AS rack_height,
@@ -4435,133 +4435,133 @@ def insert_stock_details(request):
 # """, [category_id])
 #             composite_list = cursor.fetchall()
 #             print("Check the Composite List:", composite_list)
-#
-#         # Convert the result to a list of dictionaries
-#         equipment_data = [
-#             {
-#                 'id': row[0],
-#                 'equipment_name': row[1],
-#                 'category_type': row[2],
-#                 'dimension_height': row[3],
-#                 'dimension_width': row[4],
-#                 'dimension_length': row[5],
-#                 'weight': row[6],
-#                 'volume': row[7],
-#                 'hsn_no': row[8],
-#                 'country_origin': row[9],
-#                 'status': row[10],
-#                 'created_by': row[11],
-#                 'created_date': row[12].strftime('%Y-%m-%d %H:%M:%S') if row[12] else None,
-#             }
-#             for row in equipment_list
-#         ]
-#
-#         return JsonResponse({'equipment_list': equipment_data})
-#
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return JsonResponse({'error': 'Internal Server Error'}, status=500)
-def equipment_by_category(request):
-    category_id = request.GET.get('category_id')
 
-    if not category_id:
-        return JsonResponse({'error': 'category_id is required'}, status=400)
-
-    try:
-        with connection.cursor() as cursor:
-            # Fetch equipment list
-            cursor.execute("""
-                SELECT e.id, e.equipment_name, e.category_type, e.dimension_height, e.dimension_width, 
-                       e.dimension_length, e.weight, e.volume, e.hsn_no, e.country_origin,
-                       e.status, e.created_by, e.created_date
-                FROM equipment_list e
-                JOIN sub_category s ON e.sub_category_id = s.id
-                JOIN master_category m ON s.category_id = m.category_id
-                WHERE m.category_id = %s;
-            """, [category_id])
-            equipment_list = cursor.fetchall()
-
-            # Fetch composite rack details
-            cursor.execute("""
-                SELECT 
-                    crc.id AS component_id,
-                    crc.component_name,
-                    crc.quantity,
-                    crc.unit_price,
-                    crc.total,
-                    cr.id AS rack_id,
-                    cr.name AS rack_name,
-                    cr.height AS rack_height,
-                    cr.width AS rack_width,
-                    cr.length AS rack_length,
-                    cr.volume AS rack_volume,
-                    cr.weight AS rack_weight,
-                    cr.barcode_no,
-                    cr.serial_no,
-                    cr.image AS rack_image,
-                    cr.status AS rack_status,
-                    cr.created_by AS rack_created_by,
-                    cr.created_date AS rack_created_date
-                FROM composite_rack_component crc
-                JOIN composite_rack cr ON crc.rack_id = cr.id
-                JOIN equipment_list e ON crc.component_name = e.equipment_name
-                JOIN sub_category s ON e.sub_category_id = s.id
-                JOIN master_category m ON s.category_id = m.category_id
-                WHERE m.category_id = %s;
-            """, [category_id])
-            composite_list = cursor.fetchall()
-
-        # Combine the results
-        combined_list = []
-        for equipment in equipment_list:
-            combined_entry = {
-                'id': equipment[0],
-                'equipment_name': equipment[1],
-                'category_type': equipment[2],
-                'dimension_height': equipment[3],
-                'dimension_width': equipment[4],
-                'dimension_length': equipment[5],
-                'weight': equipment[6],
-                'volume': equipment[7],
-                'hsn_no': equipment[8],
-                'country_origin': equipment[9],
-                'status': equipment[10],
-                'created_by': equipment[11],
-                'created_date': equipment[12].strftime('%Y-%m-%d %H:%M:%S') if equipment[12] else None,
-                'is_composite': False,  # Mark it as equipment
-                'component_details': None,
+        # Convert the result to a list of dictionaries
+        equipment_data = [
+            {
+                'id': row[0],
+                'equipment_name': row[1],
+                'category_type': row[2],
+                'dimension_height': row[3],
+                'dimension_width': row[4],
+                'dimension_length': row[5],
+                'weight': row[6],
+                'volume': row[7],
+                'hsn_no': row[8],
+                'country_origin': row[9],
+                'status': row[10],
+                'created_by': row[11],
+                'created_date': row[12].strftime('%Y-%m-%d %H:%M:%S') if row[12] else None,
             }
-            combined_list.append(combined_entry)
+            for row in equipment_list
+        ]
 
-        for composite in composite_list:
-            combined_entry = {
-                'id': composite[0],
-                'component_name': composite[1],
-                'quantity': composite[2],
-                'unit_price': composite[3],
-                'total': composite[4],
-                'rack_id': composite[5],
-                'rack_name': composite[6],
-                'rack_height': composite[7],
-                'rack_width': composite[8],
-                'rack_length': composite[9],
-                'rack_volume': composite[10],
-                'rack_weight': composite[11],
-                'barcode_no': composite[12],
-                'serial_no': composite[13],
-                'rack_image': composite[14],
-                'status': composite[15],
-                'created_by': composite[16],
-                'created_date': composite[17].strftime('%Y-%m-%d %H:%M:%S') if composite[17] else None,
-                'is_composite': True,  # Mark it as composite
-            }
-            combined_list.append(combined_entry)
-
-        return JsonResponse({'combined_list': combined_list})
+        return JsonResponse({'equipment_list': equipment_data})
 
     except Exception as e:
         print(f"Error: {e}")
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
+# def equipment_by_category(request):
+#     category_id = request.GET.get('category_id')
+
+#     if not category_id:
+#         return JsonResponse({'error': 'category_id is required'}, status=400)
+
+#     try:
+#         with connection.cursor() as cursor:
+#             # Fetch equipment list
+#             cursor.execute("""
+#                 SELECT e.id, e.equipment_name, e.category_type, e.dimension_height, e.dimension_width, 
+#                        e.dimension_length, e.weight, e.volume, e.hsn_no, e.country_origin,
+#                        e.status, e.created_by, e.created_date
+#                 FROM equipment_list e
+#                 JOIN sub_category s ON e.sub_category_id = s.id
+#                 JOIN master_category m ON s.category_id = m.category_id
+#                 WHERE m.category_id = %s;
+#             """, [category_id])
+#             equipment_list = cursor.fetchall()
+
+#             # Fetch composite rack details
+#             cursor.execute("""
+#                 SELECT 
+#                     crc.id AS component_id,
+#                     crc.component_name,
+#                     crc.quantity,
+#                     crc.unit_price,
+#                     crc.total,
+#                     cr.id AS rack_id,
+#                     cr.name AS rack_name,
+#                     cr.height AS rack_height,
+#                     cr.width AS rack_width,
+#                     cr.length AS rack_length,
+#                     cr.volume AS rack_volume,
+#                     cr.weight AS rack_weight,
+#                     cr.barcode_no,
+#                     cr.serial_no,
+#                     cr.image AS rack_image,
+#                     cr.status AS rack_status,
+#                     cr.created_by AS rack_created_by,
+#                     cr.created_date AS rack_created_date
+#                 FROM composite_rack_component crc
+#                 JOIN composite_rack cr ON crc.rack_id = cr.id
+#                 JOIN equipment_list e ON crc.component_name = e.equipment_name
+#                 JOIN sub_category s ON e.sub_category_id = s.id
+#                 JOIN master_category m ON s.category_id = m.category_id
+#                 WHERE m.category_id = %s;
+#             """, [category_id])
+#             composite_list = cursor.fetchall()
+
+#         # Combine the results
+#         combined_list = []
+#         for equipment in equipment_list:
+#             combined_entry = {
+#                 'id': equipment[0],
+#                 'equipment_name': equipment[1],
+#                 'category_type': equipment[2],
+#                 'dimension_height': equipment[3],
+#                 'dimension_width': equipment[4],
+#                 'dimension_length': equipment[5],
+#                 'weight': equipment[6],
+#                 'volume': equipment[7],
+#                 'hsn_no': equipment[8],
+#                 'country_origin': equipment[9],
+#                 'status': equipment[10],
+#                 'created_by': equipment[11],
+#                 'created_date': equipment[12].strftime('%Y-%m-%d %H:%M:%S') if equipment[12] else None,
+#                 'is_composite': False,  # Mark it as equipment
+#                 'component_details': None,
+#             }
+#             combined_list.append(combined_entry)
+
+#         for composite in composite_list:
+#             combined_entry = {
+#                 'id': composite[0],
+#                 'component_name': composite[1],
+#                 'quantity': composite[2],
+#                 'unit_price': composite[3],
+#                 'total': composite[4],
+#                 'rack_id': composite[5],
+#                 'rack_name': composite[6],
+#                 'rack_height': composite[7],
+#                 'rack_width': composite[8],
+#                 'rack_length': composite[9],
+#                 'rack_volume': composite[10],
+#                 'rack_weight': composite[11],
+#                 'barcode_no': composite[12],
+#                 'serial_no': composite[13],
+#                 'rack_image': composite[14],
+#                 'status': composite[15],
+#                 'created_by': composite[16],
+#                 'created_date': composite[17].strftime('%Y-%m-%d %H:%M:%S') if composite[17] else None,
+#                 'is_composite': True,  # Mark it as composite
+#             }
+#             combined_list.append(combined_entry)
+
+#         return JsonResponse({'combined_list': combined_list})
+
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
 
 def get_equipment_details(request, equipment_id):
