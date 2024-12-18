@@ -101,7 +101,6 @@ urlpatterns = [
                   path('fetch_subcategory_type/<int:subcategory_id>/', views.fetch_subcategory_type,
                        name='fetch_subcategory_type'),
                   path('get_category_type/', views.get_category_type, name='get_category_type'),
-                  # stock export
                   path('fetch_stock_details/', views.fetch_stock_details, name='fetch_stock_details'),
                   path('fetch_client_contact_number/', views.fetch_client_contact_number,
                        name='fetch_client_contact_number'),
@@ -126,7 +125,6 @@ urlpatterns = [
                        name='update_master_category'),
                   path('update_sub_category/<int:subcategory_id>/', views.update_sub_category,
                        name='update_sub_category'),
-                  # equipmentTab
                   path('get-sub-categories/', views.get_sub_categories, name='get_sub_categories'),
                   path('submit_equipment/', views.submit_equipment, name='submit_equipment'),
                   path('fetch_equipment_list/', views.fetch_equipment_list, name='fetch_equipment_list'),
@@ -138,7 +136,6 @@ urlpatterns = [
                   path('get_categories/', views.get_categories, name='get_categories'),
                   path('stock_details_view/<int:equipment_id>/', views.stock_details_view, name='stock_details_view'),
                   path('update_stock_details/', views.update_stock_details, name='update_stock_details'),
-                  #    path('insert-equipment-details/', views.insert_equipment_details, name='insert_equipment_details'),
                   path('fetch_job_list/', views.fetch_job_list, name='fetch_job_list'),
                   path('insert-crew-allocation/', views.insert_crew_allocation, name='insert-crew-allocation'),
                   path('insert-transportation-data/', views.insert_transportation_data,
@@ -161,7 +158,6 @@ urlpatterns = [
                   path('update-individual-data/', views.update_individual_data, name='update_individual_data'),
                   path('fetch_individual_names/', views.fetch_individual_names, name='fetch_individual_names'),
                   path('insert-temp-data/', views.insert_temp_data, name='insert_temp_data'),
-                  #  path('insert-equipment-details/', views.insert_equipment_details, name='insert_equipment_details'),
                   path('search-equipment/', views.search_equipment, name='search_equipment'),
                   path('fetch-all-subcategories/', views.fetch_all_subcategories, name='fetch_all_subcategories'),
                   path('fetch-equipment-with-barcodes/', views.fetch_equipment_with_barcodes,
@@ -233,7 +229,6 @@ urlpatterns = [
                        name='delete_crew_allocation_row'),
                   path('update-crew-allocation-row/', views.update_crew_allocation_row,
                        name='update_crew_allocation_row'),
-
                   path('fetch-equipment-detail-id/', views.fetch_equipment_detail_id, name='fetch_equipment_detail_id'),
                   path('fetch-crew-allocation-edit/', views.fetch_crew_allocation_edit,
                        name='fetch_crew_allocation_edit'),
@@ -243,5 +238,7 @@ urlpatterns = [
                   path('update-crew-allocation-delivery/', views.update_crew_allocation_delivery,
                        name='update_crew_allocation_delivery'),
                   path('fetch-temp-crew-details/', views.fetch_temp_crew_details, name='fetch_temp_crew_details'),
-
+                  # 12/12/2024
+                  path('fetch-equipment-composite/', views.fetch_equipment_composite, name='fetch_equipment_composite'),
+                  path('save_composite_rack/', views.save_composite_rack, name='save_composite_rack'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
