@@ -1188,6 +1188,24 @@ $(document).on('click', '.edit-list-sub-btn', function() {
             volumeField.value = '';
         }
     }
+                
+            $('.dimension_edit').on('input', function () {
+        calculateVolumeEdit();
+    });
+
+    function calculateVolumeEdit() {
+        var dimension_h = parseFloat(document.getElementById('dimensionHeight').value);
+        var dimension_w = parseFloat(document.getElementById('dimensionWidth').value);
+        var dimension_l = parseFloat(document.getElementById('dimensionLength').value);
+        var volumeField = document.getElementById('volumeEdit');
+
+        if (!isNaN(dimension_h) && !isNaN(dimension_w) && !isNaN(dimension_l)) {
+            var volume = dimension_h * dimension_w * dimension_l;
+            volumeField.value = volume;
+        } else {
+            volumeField.value = '';
+        }
+    }    
 
     function generateInputColumns(num) {
         var container = document.getElementById('serialNumberInputsContainer');
@@ -2177,15 +2195,15 @@ $('#nextPage').on('click', function () {
                                 <div class="row custom-margin">
                                     <div class="col-xl-3 mb-3">
                                         <label class="form-label" style="font-size: 11px;">Dimension(Height - Inch)</label>
-                                        <input type="number" class="form-control" id="dimensionHeight" name="dimension_h">
+                                        <input type="number" class="form-control dimension_edit" id="dimensionHeight" name="dimension_h">
                                     </div>
                                     <div class="col-xl-3 mb-3">
                                         <label class="form-label" style="font-size: 11px;">Dimension(Width - Inch)</label>
-                                        <input type="number" class="form-control" id="dimensionWidth" name="dimension_w">
+                                        <input type="number" class="form-control dimension_edit" id="dimensionWidth" name="dimension_w">
                                     </div>
                                     <div class="col-xl-3 mb-3">
                                         <label class="form-label" style="font-size: 11px;">Dimension(Length - Inch)</label>
-                                        <input type="number" class="form-control" id="dimensionLength" name="dimension_l">
+                                        <input type="number" class="form-control dimension_edit" id="dimensionLength" name="dimension_l">
                                     </div>
                                     <div class="col-xl-3 mb-3">
                                         <label class="form-label">Volume</label>
