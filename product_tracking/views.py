@@ -6065,8 +6065,9 @@ def print_jobs(request):
     warehouse_query = '''
         SELECT company_name, phone_no, warehouse_address
         FROM warehouse_master
-    '''	
-	
+    '''
+    print('Fetch the Warehouse Query:', warehouse_query)
+
     with connection.cursor() as cursor:
         print('Inside the cursor connection')
         cursor.execute(job_query, [job_id])
@@ -6087,8 +6088,9 @@ def print_jobs(request):
         company_details = cursor.fetchone()
         print('Fetch the company Details:', company_details)
 
-	cursor.execute(warehouse_query)
-        warehouse_details = cursor.fetchone()    
+        cursor.execute(warehouse_query)
+        warehouse_details = cursor.fetchone()  # This fetches only the first row. Use fetchall() if there are multiple rows.
+        print('Fetch the warehouse Details:', warehouse_details)
 
         cursor.execute(equipment_query, [job_id])
         equipment_details = cursor.fetchall()
@@ -6147,12 +6149,13 @@ def print_jobs(request):
         } if company_details else None
         print('Fetch the company DATA:', company_data)
 
-	# Prepare company details if available
+        # Prepare company details if available
         warehouse_data = {
             'company_name': warehouse_details[0] if warehouse_details else None,
             'phone_no': warehouse_details[1] if warehouse_details else None,
             'warehouse_address': warehouse_details[2] if warehouse_details else None,
         } if warehouse_details else None
+        print('Fetch the Warehouse DATA:', warehouse_data)
 
         # Initialize total rental sum and list for equipment data
 
@@ -6225,7 +6228,7 @@ def print_jobs(request):
     response_data = {
         'job': job_data,
         'company': company_data,
-	'warehouse': warehouse_data,
+        'warehouse': warehouse_data,  # Correctly passing the warehouse data here
         'equipment_details': equipment_data,
         'total_days': job_data['total_days'],
         'total_rental_sum': total_rental_sum,  # Include the sum of all total_rental_price
