@@ -4064,15 +4064,15 @@ def fetch_equipment_list(request):
                 e.id,
                 e.equipment_name,
                 s.name as subcategory_name,
-                u.username as created_by,  -- Assuming you have a user table with username
+                u.user_name as created_by,  -- Assuming you have a user table with username
                 to_char(e.created_date, 'YYYY-MM-DD') as created_date,  -- Format the date
                 a.image_1 as image_url  -- Assuming image_1 is the URL or path to the image
             FROM 
                 equipment_list e
             JOIN 
                 sub_category s ON e.sub_category_id = s.id
-            JOIN 
-                auth_user u ON e.created_by = u.id  -- Replace auth_user with your actual user table
+            LEFT JOIN 
+                user_master u ON e.created_by = u.user_id
             LEFT JOIN 
                 equipment_list_attachments a ON e.id = a.equipment_list_id
             ORDER BY 
