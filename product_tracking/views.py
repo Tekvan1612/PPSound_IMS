@@ -4011,7 +4011,7 @@ def submit_equipment(request):
             # Handle file uploads to Cloudinary
             # Handle file uploads to Cloudinary
             image_urls = []
-            for field_name in ['image1[]', 'image2[]', 'image3[]']:
+            for field_name in ['image1', 'image2', 'image3']:
                 for image in request.FILES.getlist(field_name):
                     if image:
                         result = cloudinary.uploader.upload(image)
