@@ -296,7 +296,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
     $(document).ready(function () {
-        // 12/12/2024
          $('#addCompositeForm').on('click', function (e) {
             e.preventDefault();
 
@@ -486,8 +485,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// End 13/12/2024
-
          document.getElementById('addEquipmentRow').addEventListener('click', function() {
             var myModal = new bootstrap.Modal(document.getElementById('categoryModal'));
             myModal.show();
@@ -500,9 +497,6 @@ document.addEventListener("DOMContentLoaded", function () {
          console.log("jQuery version:", $.fn.jquery);
 
     // Load existing data
-    // // loadMasterCategoryList();
-    // loadSubCategoryList();
-    // loadEquipmentList();
     fetchSubCategories();
     loadStockDetails();
     fetchSubEditCategories();    
@@ -589,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to load master category list
     let currentMasterPage = 1;
-const masterPageSize = 10;
+const masterPageSize = 15;
 let totalMasterItems = 0;
 
 // Load master category list on page load
@@ -613,7 +607,6 @@ function loadMasterCategoryList() {
                     if (category.id) {
                         $('#master-category-table-body').append(`
                             <tr class="editable-row" data-category-id="${category.id}">
-{#                                <td>${startIndex + index + 1}</td>#}
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-list-btn me-2" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i></button>
                                     <button class="btn btn-sm btn-success edit-save-btn me-2" style="display:none;" data-toggle="tooltip" title="Save"><i class="fa fa-save"></i></button>
@@ -1003,7 +996,7 @@ $('#next-page-btn').click(function () {
 
                 
 let currentSubPage = 1;
-const subPageSize = 10;
+const subPageSize = 15;
 let totalSubItems = 0;
 
 // Load subcategory list on page load
@@ -1027,7 +1020,6 @@ function loadSubCategoryList() {
                     if (subcategory.id) {
                         $('#subcategory-table-body').append(`
                             <tr class="editable-sub-row" data-subcategory-id="${subcategory.id}">
-{#                                <td>${startIndex + index + 1}</td>#}
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-list-sub-btn me-2" data-toggle="tooltip" title="Edit"><i class="fa fa-pencil"></i></button>
                             <button class="btn btn-sm btn-success save-sub-list-btn me-2" style="display:none;" data-toggle="tooltip" title="Save"><i class="fa fa-save"></i></button>
@@ -1450,7 +1442,7 @@ $("#generalInformationForm").on("submit", function(e) {
 
 // Load Equipment List with Pagination
 let currentEquipmentPage = 1;
-const equipmentPageSize = 10;
+const equipmentPageSize = 15;
 let totalEquipmentItems = 0;
 
 // Load equipment list on page load
@@ -1474,7 +1466,6 @@ function loadEquipmentList() {
                     if (equipment.id) {
                         $('#equipment-table-body').append(`
                             <tr class="editable-equipment-row" data-equipment-id="${equipment.id}">
-{#                                <td>${startIndex + index + 1}</td>#}
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-equipment-btn me-2" data-toggle="tooltip" title="Edit">
                                         <i class="fa fa-pencil"></i>
